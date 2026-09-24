@@ -8297,7 +8297,7 @@ Offset for red: (12, -9)
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>For multi scale alignment, I made a function that accepts an initial x and y range for the smallest scale image, and a number of scales that determines the height of the image pyramid.</p>
-<p>Downsampling is simply done by taking only every $2^n$-th row and 2^n$-th column at scale $n$ (with scale $0$ being the full original image).</p>
+<p>Downsampling is simply done by taking only every $2^n$-th row and $2^n$-th column at scale $n$ (with scale $0$ being the full original image).</p>
 <p>In terms of search, the function chooses the best offset at each scale, multiplies it by 2 to translate it to the same pixel on the next scale, and then searches a 5x5 square around that pixel.</p>
 </div>
 </div>
