@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assignment 4</title>
+<style>
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #1f2430;
+  --muted: #5b6475;
+  --line: #dfe3ea;
+  --accent: #2b4a9a;
+  --code-bg: #151a24;
+  --code-text: #e4e8f0;
+  --inline-code-bg: #e9edf5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151c;
+    --surface: #1a1e28;
+    --text: #e6e9f0;
+    --muted: #9aa3b5;
+    --line: #2b3140;
+    --accent: #8fa8f0;
+    --code-bg: #0c0f15;
+    --code-text: #e4e8f0;
+    --inline-code-bg: #262c3a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Charter, "Iowan Old Style", Georgia, "Times New Roman", serif;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 5rem;
+}
+
+h1, h2, h3 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  font-weight: 800;
+  margin: 0 0 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 4px solid var(--accent);
+}
+
+h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 4rem 0 1.25rem;
+  padding-left: 0.9rem;
+  border-left: 4px solid var(--accent);
+}
+
+h3 {
+  font-size: 1.2rem;
+  font-weight: 650;
+  color: var(--accent);
+  margin: 2.25rem 0 0.75rem;
+}
+
+p { margin: 0 0 1rem; max-width: 70ch; }
+
+p + img,
+p + .row { margin-top: 0.25rem; }
+
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: var(--inline-code-bg);
+  padding: 0.12em 0.4em;
+  border-radius: 4px;
+}
+
+pre {
+  background: var(--code-bg);
+  color: var(--code-text);
+  border-radius: 10px;
+  padding: 1.1rem 1.3rem;
+  margin: 0.5rem 0 1.5rem;
+  overflow-x: auto;
+  line-height: 1.55;
+  box-shadow: 0 1px 0 var(--line);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.88rem;
+  white-space: pre;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: 50vh;
+  width: auto;
+  object-fit: contain;
+  margin: 0.5rem 0 1.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  margin: 0.5rem 0 1.75rem;
+}
+
+.row img { margin: 0; }
+
+.analysis {
+  max-width: 70ch;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem;
+  margin: 0.5rem 0 1.5rem;
+}
+
+@media (max-width: 600px) {
+  body { font-size: 1rem; }
+  main { padding: 2rem 1rem 3rem; }
+  img { max-height: none; }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Assignment 4</h1>
+<h2>Part 1</h2>
+  <h3>Subsection (b)</h3>
+  <p>For the first set, the generated fundamental matrix from the standard linear least-squares eight point algorithm is</p>
+  <pre><code>[[ 1.55148819e-06 -8.16925504e-06 -1.50610420e-03]
+ [-5.85647975e-06 -3.01747164e-07 -1.13453640e-02]
+ [-3.52246089e-03  1.41236029e-02  1.00000000e+00]]</code></pre>
+
+ <p>For the second set, the generated fundamental matrix is</p>
+ <pre><code>[[ 5.62548297e-06 -2.74807219e-05  6.42733191e-03]
+ [ 2.78086517e-05  6.75334922e-06 -1.51507557e-02]
+ [-1.07629242e-02  1.21675444e-02  1.00000000e+00]]</code></pre>
+
+  My implementation of the algorithm:
+<ol>
+    <li>To find <math>
+  <mover>
+    <mi>F</mi>
+    <mo stretchy="false" class="chr-lrg wbk-lrg-acc" style="math-depth:0;">ˆ</mo>
+  </mover>
+</math>: For each <math>
+  <mrow>
+    <mi>i</mi>
+    <mo>=</mo>
+    <mn>1,2</mn>
+    <mo separator="true">,</mo>
+    <mi>…</mi>
+    <mo separator="true">,</mo>
+    <mi>n</mi>
+  </mrow>
+</math>, we have a point <math>
+  <mrow>
+    <msub>
+      <mi>p</mi>
+      <mi>i</mi>
+    </msub>
+    <mo>=</mo>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="false">(</mo>
+      <msub>
+        <mi>x</mi>
+        <mi>i</mi>
+      </msub>
+      <mo separator="true">,</mo>
+      <msub>
+        <mi>y</mi>
+        <mi>i</mi>
+      </msub>
+      <mo fence="true" form="postfix" stretchy="false">)</mo>
+    </mrow>
+  </mrow>
+</math> in the first image and a corresponding point <math>
+  <mrow>
+    <msubsup>
+      <mi>p</mi>
+      <mi>i</mi>
+      <mo lspace="0em" rspace="0em" class="tml-prime tml-med-pad">′</mo>
+    </msubsup>
+    <mo>=</mo>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="false">(</mo>
+      <msubsup>
+        <mi>x</mi>
+        <mi>i</mi>
+        <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+      </msubsup>
+      <mo separator="true">,</mo>
+      <msubsup>
+        <mi>y</mi>
+        <mi>i</mi>
+        <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+      </msubsup>
+      <mo fence="true" form="postfix" stretchy="false">)</mo>
+    </mrow>
+  </mrow>
+</math> in the second image. We define a N x 9 matrix
+    <math display="block" class="tml-display" style="display:block math;">
+  <mrow>
+    <mi>A</mi>
+    <mo>=</mo>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="true">[</mo>
+      <mtable>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>x</mi>
+                <mn>1</mn>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>x</mi>
+                <mn>1</mn>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>x</mi>
+                <mn>1</mn>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>y</mi>
+                <mn>1</mn>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msubsup>
+              <mi>x</mi>
+              <mn>1</mn>
+              <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+            </msubsup>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>y</mi>
+                <mn>1</mn>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>x</mi>
+                <mn>1</mn>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>y</mi>
+                <mn>1</mn>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>y</mi>
+                <mn>1</mn>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>y</mi>
+              <mn>1</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>x</mi>
+              <mn>1</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>y</mi>
+              <mn>1</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <mn>1</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>x</mi>
+                <mn>2</mn>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>x</mi>
+                <mn>2</mn>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>x</mi>
+                <mn>2</mn>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>y</mi>
+                <mn>2</mn>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msubsup>
+              <mi>x</mi>
+              <mn>2</mn>
+              <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+            </msubsup>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>y</mi>
+                <mn>2</mn>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>x</mi>
+                <mn>2</mn>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>y</mi>
+                <mn>2</mn>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>y</mi>
+                <mn>2</mn>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>y</mi>
+              <mn>2</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>x</mi>
+              <mn>2</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>y</mi>
+              <mn>2</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <mn>1</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <mrow>
+              <mi>⋮</mi>
+              <mspace width="0pt" height="14.944pt"></mspace>
+            </mrow>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>x</mi>
+                <mi>n</mi>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>x</mi>
+                <mi>n</mi>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>x</mi>
+                <mi>n</mi>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>y</mi>
+                <mi>n</mi>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msubsup>
+              <mi>x</mi>
+              <mi>n</mi>
+              <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+            </msubsup>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>y</mi>
+                <mi>n</mi>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>x</mi>
+                <mi>n</mi>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mrow>
+              <msubsup>
+                <mi>y</mi>
+                <mi>n</mi>
+                <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+              </msubsup>
+              <msub>
+                <mi>y</mi>
+                <mi>n</mi>
+              </msub>
+            </mrow>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>y</mi>
+              <mi>n</mi>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>x</mi>
+              <mi>n</mi>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>y</mi>
+              <mi>n</mi>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <mn>1</mn>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo fence="true" form="postfix" stretchy="true">]</mo>
+    </mrow>
+  </mrow>
+</math>
+We decompose <math>
+  <mrow>
+    <mi>A</mi>
+    <mo>=</mo>
+    <mi>U</mi>
+    <mi>S</mi>
+    <msup>
+      <mi>V</mi>
+      <mi>T</mi>
+    </msup>
+  </mrow>
+</math>
+  </mrow>
+</math> using <code>np.linalg.svd</code>, and set <math>
+  <mi>𝐟</mi>
+</math> as the last column of <math>
+    <msup>
+      <mi>V</mi>
+      <mi>T</mi>
+    </msup></math>, then set</li>
+<math display="block" class="tml-display" style="display:block math;">
+  <mrow>
+    <mover>
+      <mi>F</mi>
+      <mo stretchy="false" class="chr-lrg wbk-lrg-acc" style="math-depth:0;">ˆ</mo>
+    </mover>
+    <mo>=</mo>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="true">[</mo>
+      <mtable>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <msub>
+              <mi>h</mi>
+              <mn>1</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>h</mi>
+              <mn>2</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <msub>
+              <mi>h</mi>
+              <mn>3</mn>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <msub>
+              <mi>h</mi>
+              <mn>4</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>h</mi>
+              <mn>5</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <msub>
+              <mi>h</mi>
+              <mn>6</mn>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <msub>
+              <mi>h</mi>
+              <mn>7</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mi>h</mi>
+              <mn>8</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <msub>
+              <mi>h</mi>
+              <mn>9</mn>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo fence="true" form="postfix" stretchy="true">]</mo>
+    </mrow>
+  </mrow>
+</math>
+<li>Then, find the final rank 2 matrix <math>
+  <mover>
+    <msup>
+      <mi>F</mi>
+      <mo lspace="0em" rspace="0em" class="tml-prime tml-med-pad">′</mo>
+    </msup>
+    <mo stretchy="false" class="wbk-acc" style="math-depth:0;">ˆ</mo>
+  </mover>
+</math> by decomposing <math>
+  <mrow>
+    <mover>
+      <mi>F</mi>
+      <mo stretchy="false" class="chr-lrg wbk-lrg-acc" style="math-depth:0;">ˆ</mo>
+    </mover>
+    <mo>=</mo>
+    <msup>
+      <mi>U</mi>
+      <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+    </msup>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="false">(</mo>
+      <mtext>diag</mtext>
+      <mrow>
+        <mo fence="true" form="prefix" stretchy="false">(</mo>
+        <mi>r</mi>
+        <mo separator="true">,</mo>
+        <mi>s</mi>
+        <mo separator="true">,</mo>
+        <mi>t</mi>
+        <mo fence="true" form="postfix" stretchy="false">)</mo>
+      </mrow>
+      <mo fence="true" form="postfix" stretchy="false">)</mo>
+    </mrow>
+    <msup>
+      <mi>V</mi>
+      <mrow>
+        <mo lspace="0em" rspace="0em" class="tml-prime">′</mo>
+        <mi>T</mi>
+      </mrow>
+    </msup>
+  </mrow>
+</math> using <code>np.linalg.svd</code>, then set <math>
+  <mrow>
+    <mover>
+      <msup>
+        <mi>F</mi>
+        <mo lspace="0em" rspace="0em" class="tml-prime tml-med-pad">′</mo>
+      </msup>
+      <mo stretchy="false" class="wbk-acc" style="math-depth:0;">ˆ</mo>
+    </mover>
+    <mo>=</mo>
+    <msup>
+      <mi>U</mi>
+      <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+    </msup>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="false">(</mo>
+      <mtext>diag</mtext>
+      <mrow>
+        <mo fence="true" form="prefix" stretchy="false">(</mo>
+        <mi>r</mi>
+        <mo separator="true">,</mo>
+        <mi>s</mi>
+        <mo separator="true">,</mo>
+        <mi>0</mi>
+        <mo fence="true" form="postfix" stretchy="false">)</mo>
+      </mrow>
+      <mo fence="true" form="postfix" stretchy="false">)</mo>
+    </mrow>
+    <msup>
+      <mi>V</mi>
+      <mrow>
+        <mo lspace="0em" rspace="0em" class="tml-prime">′</mo>
+        <mi>T</mi>
+      </mrow>
+    </msup>
+  </mrow>
+</math>.
+</li>
+</ol>
+
+  <h3>Subsection (d)</h3>
+  <p>For the first set, the generated fundamental matrix from the normalized eight point algorithm is</p>
+  <pre><code>[[ 2.19252298e-05 -1.76780223e-04  2.52523874e-03]
+ [-1.64453997e-04 -1.81931371e-05 -2.17561691e-01]
+ [-3.00994798e-02  3.00935327e-01  5.14020460e+00]]</code></pre>
+
+ <p>For the second set, the generated fundamental matrix is</p>
+ <pre><code>[[-3.19323841e-07 -7.33243791e-05 -1.11162783e-03]
+ [-1.48055457e-04 -2.20285910e-05 -2.56346485e-01]
+ [-1.43454733e-03  3.16087557e-01 -7.19800203e-02]]</code></pre>
+
+  <h3>Subsection (f)</h3>
+  <p>The implementation for <code>compute_distance_to_epipolar_lines</code>:
+<ol>
+    <li>For each <math>
+  <mrow>
+    <mi>i</mi>
+    <mo>=</mo>
+    <mn>1,2</mn>
+    <mo separator="true">,</mo>
+    <mi>…</mi>
+    <mo separator="true">,</mo>
+    <mi>n</mi>
+  </mrow>
+</math>, we have a point <math>
+  <mrow>
+    <msub>
+      <mi>p</mi>
+      <mi>i</mi>
+    </msub>
+    <mo>=</mo>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="false">(</mo>
+      <msub>
+        <mi>x</mi>
+        <mi>i</mi>
+      </msub>
+      <mo separator="true">,</mo>
+      <msub>
+        <mi>y</mi>
+        <mi>i</mi>
+      </msub>
+      <mo fence="true" form="postfix" stretchy="false">)</mo>
+    </mrow>
+  </mrow>
+</math> in the first image and a corresponding point <math>
+  <mrow>
+    <msubsup>
+      <mi>p</mi>
+      <mi>i</mi>
+      <mo lspace="0em" rspace="0em" class="tml-prime tml-med-pad">′</mo>
+    </msubsup>
+    <mo>=</mo>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="false">(</mo>
+      <msubsup>
+        <mi>x</mi>
+        <mi>i</mi>
+        <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+      </msubsup>
+      <mo separator="true">,</mo>
+      <msubsup>
+        <mi>y</mi>
+        <mi>i</mi>
+        <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+      </msubsup>
+      <mo fence="true" form="postfix" stretchy="false">)</mo>
+    </mrow>
+  </mrow>
+</math> in the second image. We define our line with the equation <math>
+  <mrow>
+            <msub>
+              <mi>A</mi>
+              <mi>i</mi>
+            </msub>
+    <mi>X</mi>
+    <mo>+</mo>
+            <msub>
+              <mi>B</mi>
+              <mi>i</mi>
+            </msub>
+    <mi>Y</mi>
+    <mo>+</mo>
+            <msub>
+              <mi>C</mi>
+              <mi>i</mi>
+            </msub>
+    <mo>=</mo>
+    <mn>0</mn>
+  </mrow>
+</math>, with <math>
+            <msub>
+              <mi>A</mi>
+              <mi>i</mi>
+            </msub></math>, <math>
+            <msub>
+              <mi>B</mi>
+              <mi>i</mi>
+            </msub></math> and <math>
+            <msub>
+              <mi>C</mi>
+              <mi>i</mi>
+            </msub></math> defined using the equation
+<math display="block" class="tml-display" style="display:block math;">
+  <mrow>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="true">[</mo>
+      <mtable>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:0em;">
+            <msub>
+              <mi>A</mi>
+              <mi>i</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:0em;">
+            <msub>
+              <mi>B</mi>
+              <mi>i</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:0em;">
+            <msub>
+              <mi>C</mi>
+              <mi>i</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo fence="true" form="postfix" stretchy="true">]</mo>
+    </mrow>
+    <mo>=</mo>
+    <mi>F</mi>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="true">[</mo>
+      <mtable>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:0em;">
+            <msubsup>
+              <mi>x</mi>
+              <mi>i</mi>
+              <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+            </msubsup>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:0em;">
+            <msubsup>
+              <mi>y</mi>
+              <mi>i</mi>
+              <mo lspace="0em" rspace="0em" class="tml-prime tml-sml-pad">′</mo>
+            </msubsup>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:0em;">
+            <mn>1</mn>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo fence="true" form="postfix" stretchy="true">]</mo>
+    </mrow>
+  </mrow>
+</math>
+</li>
+<li>Next, we compute the distance between <math>
+  <msub>
+    <mi>p</mi>
+    <mi>i</mi>
+  </msub>
+</math> and the line using the equation
+<math display="block" class="tml-display" style="display:block math;">
+  <mrow>
+    <msub>
+      <mi>d</mi>
+      <mi>i</mi>
+    </msub>
+    <mo>=</mo>
+    <mfrac>
+      <mrow>
+        <mi>|</mi>
+        <msub>
+          <mi>A</mi>
+          <mi>i</mi>
+        </msub>
+        <msub>
+          <mi>x</mi>
+          <mi>i</mi>
+        </msub>
+        <mo>+</mo>
+        <msub>
+          <mi>B</mi>
+          <mi>i</mi>
+        </msub>
+        <msub>
+          <mi>y</mi>
+          <mi>i</mi>
+        </msub>
+        <mo>+</mo>
+        <msub>
+          <mi>C</mi>
+          <mi>i</mi>
+        </msub>
+        <mi>|</mi>
+      </mrow>
+      <msqrt>
+        <mrow>
+          <msubsup>
+            <mi>A</mi>
+            <mi>i</mi>
+            <mn class="tml-lrg-pad">2</mn>
+          </msubsup>
+          <mo>+</mo>
+          <msubsup>
+            <mi>B</mi>
+            <mi>i</mi>
+            <mn class="tml-med-pad">2</mn>
+          </msubsup>
+        </mrow>
+      </msqrt>
+    </mfrac>
+  </mrow>
+</math>, and return the mean <math>
+  <mrow>
+    <mrow>
+      <munderover>
+        <mo movablelimits="false">∑</mo>
+        <mrow>
+          <mi>i</mi>
+          <mo>=</mo>
+          <mn>1</mn>
+        </mrow>
+        <mi>n</mi>
+      </munderover>
+    </mrow>
+    <msub>
+      <mi>d</mi>
+      <mi>i</mi>
+    </msub>
+  </mrow>
+</math>.
+</li>
+</ol></p>
+
+
+<h2>Part 2</h2>
+<h3>Subsection (d)</h3>
+<img src="media/rectified_figure.png">
+<p>Rectification makes it easier to find corresponding points in the two images because we now only need to consider the horizontal (x) axis when matching points, since matching points will (ideally, if our homography is perfect) always be on the same vertical (y) level.</p>
+
+<h2>Part 3</h2>
+<h3>Subsection (b)</h3>
+<p>For factorization, I followed the course notes exactly. </p>
+    <ol></ol>
+    <li>I centered both sets of points by subtracting the centroid of <code>points_im1</code>
+    from all points in <code>points_im1</code> and subtracting the centroid of <code>points_im2</code> from all points in <code>points_im2</code>.</li>
+    <li>I defined a 4 x n matrix <math display="block" class="tml-display" style="display:block math;">
+  <mrow>
+    <mi>D</mi>
+    <mo>=</mo>
+    <mrow>
+      <mo fence="true" form="prefix" stretchy="true">[</mo>
+      <mtable>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <msub>
+              <mover>
+                <mi>x</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mn>1</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mover>
+                <mi>x</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mn>2</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mi>⋯</mi>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <msub>
+              <mover>
+                <mi>x</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mi>n</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <msub>
+              <mover>
+                <mi>y</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mn>1</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msub>
+              <mover>
+                <mi>y</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mn>2</mn>
+            </msub>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mi>⋯</mi>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <msub>
+              <mover>
+                <mi>y</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mi>n</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <msubsup>
+              <mover>
+                <mi>x</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mn>1</mn>
+              <mo lspace="0em" rspace="0em" class="tml-prime">′</mo>
+            </msubsup>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msubsup>
+              <mover>
+                <mi>x</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mn>2</mn>
+              <mo lspace="0em" rspace="0em" class="tml-prime">′</mo>
+            </msubsup>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mi>⋯</mi>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <msubsup>
+              <mover>
+                <mi>x</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mi>n</mi>
+              <mo lspace="0em" rspace="0em" class="tml-prime">′</mo>
+            </msubsup>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd style="padding-left:0em;padding-right:5.9776pt;">
+            <msubsup>
+              <mover>
+                <mi>y</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mn>1</mn>
+              <mo lspace="0em" rspace="0em" class="tml-prime">′</mo>
+            </msubsup>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <msubsup>
+              <mover>
+                <mi>y</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mn>2</mn>
+              <mo lspace="0em" rspace="0em" class="tml-prime">′</mo>
+            </msubsup>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:5.9776pt;">
+            <mi>⋯</mi>
+          </mtd>
+          <mtd style="padding-left:5.9776pt;padding-right:0em;">
+            <msubsup>
+              <mover>
+                <mi>y</mi>
+                <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+              </mover>
+              <mi>n</mi>
+              <mo lspace="0em" rspace="0em" class="tml-prime">′</mo>
+            </msubsup>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo fence="true" form="postfix" stretchy="true">]</mo>
+    </mrow>
+  </mrow>
+</math>
+where <math>
+  <mrow>
+    <mo fence="true" form="prefix" stretchy="false">(</mo>
+    <mover>
+      <mi>x</mi>
+      <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+    </mover>
+    <mo separator="true">,</mo>
+    <mover>
+      <mi>y</mi>
+      <mo stretchy="false" class="chr-sml wbk-sml-acc" style="math-depth:0;">ˆ</mo>
+    </mover>
+    <mo fence="true" form="postfix" stretchy="false">)</mo>
+  </mrow>
+</math> refers to the normalized point.</li>
+<li>I used <code>np.linalg.svd</code> to decompose <math>
+  <mrow>
+    <mi>D</mi>
+    <mo>=</mo>
+    <mi>U</mi>
+    <mi>W</mi>
+    <msup>
+      <mi>V</mi>
+      <mi>T</mi>
+    </msup>
+  </mrow>
+</math>, then defined M as the first three columns of U, and S as the matrix product of the first three rows and columns of W, and the first three rows of <math>
+    <msup>
+      <mi>V</mi>
+      <mi>T</mi>
+    </msup></math>. Note that other sources decompose D slightly differently (the original paper uses ), though this doesn't affect the general shape of the points in the structure matrix.</li>
+
+    I did not apply a correction for affine ambiguity, as it seems like there is no stable way to do so with only 2 views.
+
+<h3>Subsection (c)</h3>
+<p>The scaling and rotation are different between the ground truth and reconstruction because it isn't possible to discern global scale or rotation from any set of 2D images due to similarity ambiguity;
+  we can only determine relative distance and angles of the points. My reconstructed points also end up being skewed compared to the original, most noticeably, the angle between the planes containing points
+  on the ground and points on the building face is greater than 90 degrees.</p>
+<img src="media/reconstructed_full.png">
+
+<h3>Subsection (d)</h3>
+The singular values from the SVD decomposition are <code>[959.5852216  540.47613178 184.43174791  27.9151956 ]</code>. There are four non-zero singular values because D is not rank-deficient, possibly due to measurement errors when creating the 2d points.
+Ideally, we would want 3 singular values, so that our decomposition of D into M and S is exact, instead of an approximation. This is ideally the case because D is theoretically a product of the 2m x 3 camera motion matrix and 3 x n matrix of points.
+<h3>Subsection (e)</h3>
+The chosen subset of points all lie roughly on the same plane (in the ground truth, this plane is y = 0). This causes D to be roughly of rank 2 instead of rank 3, and thus the third dimension of the reconstructed points is basically entirely determined by noise.
+However, since we multiply the structure matrix by the eigenvalue matrix W, whose third eigenvalue will be very small compared to the first 2 (since, again, D is roughly of rank 2), this basically cancels out the problem, and the reconstructed points are also roughly
+coplanar, just like the ground truth. If we were to decompose D into M and S differently, e.g. if we were to define <math>
+  <mrow>
+    <mi>M</mi>
+    <mo>=</mo>
+    <msub>
+      <mi>U</mi>
+      <mn>3</mn>
+    </msub>
+    <msubsup>
+      <mi>W</mi>
+      <mn>3</mn>
+      <mrow>
+        <mn>1</mn>
+        <mi>/</mi>
+        <mn>2</mn>
+      </mrow>
+    </msubsup>
+  </mrow>
+</math> and <math>
+  <mrow>
+    <mi>S</mi>
+    <mo>=</mo>
+    <msubsup>
+      <mi>W</mi>
+      <mn>3</mn>
+      <mrow>
+        <mn>1</mn>
+        <mi>/</mi>
+        <mn>2</mn>
+      </mrow>
+    </msubsup>
+    <msubsup>
+      <mi>V</mi>
+      <mn>3</mn>
+      <mi>T</mi>
+    </msubsup>
+  </mrow>
+</math> as defined in sources other than the course notes, then the reconstructed points would likely look much less planar, and thus differ more visibly from the ground truth.
+<img src="media/reconstructed_subset.png">
+<h3>Subsection (f)</h3>
+The new singular values are <code>[264.54396508 210.06072009   7.21921783   5.12857709]</code>. We observe that the third singular value is very small now, which makes sense since the ground truth points being coplanar means that without noise we'd expect a 
+matrix D with rank 2, whose third eigenvalue would thus be 0.
+
+<h2>Part 4</h2>
+<h3>Subsection (f)</h3>
+<img src="media/statue_plot.png">
+Reconstructing a larger scene might be harder because we'd need more cameras/images, which provides more opportunities for error, including compounding errors, e.g. if we calculate the fundamental matrices for each image sequentially in relation to
+the previous image.
+
+</main>
+</body>
+</html>
+
+
